@@ -23,7 +23,7 @@ public class TicketService {
         this.moduleRepository = moduleRepository;
     }
 
-    public ListTicketsGroupedByModuleAndClientResponse listTicketsGroupedByModuleAndClient(Integer year, Integer month) {
+    public ListTicketsGroupedByModuleAndClientResponse listTicketsGroupedByModuleAndClient(final Integer year, final Integer month) {
 
         final var totalTickets = ticketRepository.findAllByMonthAndYear(month, year);
         final var totalTicketsPerClient = totalTicketsPerClient(totalTickets);
