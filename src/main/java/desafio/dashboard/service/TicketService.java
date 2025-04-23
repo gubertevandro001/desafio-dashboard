@@ -2,9 +2,11 @@ package desafio.dashboard.service;
 
 import desafio.dashboard.dto.*;
 import desafio.dashboard.entity.Ticket;
+import desafio.dashboard.event.CreatedTicketEvent;
 import desafio.dashboard.repository.ClientRepository;
 import desafio.dashboard.repository.ModuleRepository;
 import desafio.dashboard.repository.TicketRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,11 +18,13 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final ClientRepository clientRepository;
     private final ModuleRepository moduleRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public TicketService(TicketRepository ticketRepository, ClientRepository clientRepository, ModuleRepository moduleRepository) {
+    public TicketService(TicketRepository ticketRepository, ClientRepository clientRepository, ModuleRepository moduleRepository, ApplicationEventPublisher eventPublisher) {
         this.ticketRepository = ticketRepository;
         this.clientRepository = clientRepository;
         this.moduleRepository = moduleRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public ListTicketsGroupedByModuleAndClientResponse listTicketsGroupedByModuleAndClient(final Integer year, final Integer month) {
@@ -79,6 +83,8 @@ public class TicketService {
         final var ticket = Ticket.newTicket(request.title(), module, client);
 
         final var createdTicket = ticketRepository.save(ticket);
+
+        eventPublisher.publishEvent(new CreatedTicketEvent(this, createdTicket));
 
         return CreateTicketResponse.output(createdTicket.getId());
     }
